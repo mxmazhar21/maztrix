@@ -28,6 +28,7 @@ let progresExId = 'traction-lestee';
 let chrono = null; // { departA, dernierChiffre } pendant un décompte ou une tentative
 let retourSerie = null; // { seanceId, i, j } quand le chrono a été ouvert depuis une série
 let animation;
+let ecranAffiche = ''; // pour le fondu entre deux écrans
 
 // Un repos était en cours quand l'app a été fermée : on rouvre directement cette séance.
 if (etat.repos?.seanceId) ouvrir(etat.repos.seanceId, false);
@@ -44,8 +45,14 @@ function rendre() {
     b.toggleAttribute('aria-current', b.dataset.onglet === onglet);
   const vues = { seance: vueSeance, programme: vueProgramme, chrono: vueChrono, progres: vueProgres, reglages: vueReglages };
   vue.innerHTML = vues[onglet]();
-  vue.classList.toggle('avec-zone', onglet === 'chrono');
   vue.dataset.vue = onglet; // choisit la photo d'en-tête (css)
+  const ecran = [onglet, semaineId, ouverteId, !!retourSerie].join('|');
+  if (ecran !== ecranAffiche) {
+    ecranAffiche = ecran;
+    vue.classList.remove('entree');
+    void vue.offsetWidth; // relance l'animation
+    vue.classList.add('entree');
+  }
   cancelAnimationFrame(animation);
   if (onglet === 'chrono' && chrono) animer();
   ecranAllume(seanceActive() || !!chrono);
@@ -287,41 +294,25 @@ const secondes = v => (Number.isFinite(v) && v > 0 ? `${nombre(v)} s` : '—');
 function vueChrono() {
   if (!chronoExId) return `<p class="vide">Aucun exercice de tenue dans le programme.</p>`;
   const duJour = etat.tentatives.filter(t => t.exId === chronoExId && t.date === aujourdhui);
-  const record = recordPerso(chronoExId); // tentatives + séries en secondes
   const s = retourSerie && seances.find(x => x.id === retourSerie.seanceId);
-  const zone = !chrono ? 'Tap pour démarrer' : Date.now() < chrono.departA ? 'Tap pour annuler' : 'Tap pour arrêter';
-  const essais = duJour.map((t, k) => `<li>#${k + 1} <strong>${secondes(t.duree)}</strong></li>`).reverse().join('');
-  const interrupteur = `<label class="interrupteur-ligne">3-2-1
-    <input type="checkbox" class="interrupteur" data-champ="decompte" ${etat.reglages.decompte ? 'checked' : ''}></label>`;
+  const libelle = !chrono ? 'Démarrer' : Date.now() < chrono.departA ? 'Annuler' : 'Arrêter';
   return `
     ${s ? `${retour(s.titre, 'retour-seance')}
-      <p class="conseil">Le temps ira dans : ${s.exercices[retourSerie.i].nom} — série ${retourSerie.j + 1}</p>${interrupteur}`
-      : `<header class="tete tete-courte"><h1 class="titre">Chrono</h1>${interrupteur}</header>`}
-    <div class="puces">${tenues.map(([id, nom]) =>
-      `<button data-action="tenue" data-id="${id}" aria-pressed="${id === chronoExId}" ${chrono || s ? 'disabled' : ''}>${nom}</button>`).join('')}
-    </div>
+      <p class="conseil">Le temps ira dans : ${s.exercices[retourSerie.i].nom} — série ${retourSerie.j + 1}</p>`
+      : `<header class="tete"><h1 class="titre">Chrono</h1></header>`}
+    <label class="champ"><span>Exercice</span>
+      <select id="chrono-exo" ${chrono || s ? 'disabled' : ''}>${tenues.map(([id, nom]) =>
+        `<option value="${id}" ${id === chronoExId ? 'selected' : ''}>${nom}</option>`).join('')}</select>
+    </label>
     <div id="chrono-temps" class="chrono-temps">${chronoTexte(0)}</div>
-    <div id="chrono-barre" class="chrono-barre">
-      <span class="chrono-piste"></span>
-      <span id="chrono-barre-texte">${record ? secondes(record) : 'Pas encore de record'}</span>
-    </div>
-    <div class="chrono-ligne">
-      <p>Jour<strong>${secondes(Math.max(...duJour.map(t => t.duree)))}</strong></p>
-      <p>Record<strong>${secondes(record)}</strong></p>
-    </div>
-    <button id="chrono-zone" class="chrono-zone${chrono ? ' en-cours' : ''}"><span id="chrono-consigne">${zone}</span></button>
-    <ol class="chrono-essais" aria-label="Tentatives du jour">${essais || `<li>Aucune tentative aujourd'hui</li>`}</ol>`;
-}
-
-// Barre vers le record : se remplit pendant la tentative, passe en blanc une fois le record battu.
-function majBarre(s) {
-  const barre = document.getElementById('chrono-barre');
-  if (!barre || !chrono.record) return;
-  const battu = s > chrono.record;
-  barre.style.setProperty('--p', Math.min(1, s / chrono.record));
-  barre.classList.toggle('battu', battu);
-  document.getElementById('chrono-barre-texte').textContent =
-    battu ? 'Record battu' : `Record dans ${nombre((chrono.record - s).toFixed(1))} s`;
+    <p class="chrono-record">Record ${secondes(recordPerso(chronoExId))} · Aujourd'hui ${secondes(Math.max(...duJour.map(t => t.duree)))}</p>
+    <button id="chrono-bouton" class="bouton chrono-bouton${chrono ? ' en-cours' : ''}">${libelle}</button>
+    <label class="interrupteur-ligne reglage">Décompte 3-2-1
+      <input type="checkbox" class="interrupteur" data-champ="decompte" ${etat.reglages.decompte ? 'checked' : ''}></label>
+    <h2 class="section">Tentatives du jour</h2>
+    ${duJour.length
+      ? `<ol class="tentatives">${duJour.map((t, k) => `<li><span>#${k + 1}</span><strong>${secondes(t.duree)}</strong></li>`).reverse().join('')}</ol>`
+      : `<p class="exo-infos">Aucune tentative aujourd'hui.</p>`}`;
 }
 
 // Rafraîchit l'affichage ; le temps vient toujours de l'heure de départ (juste même en arrière-plan).
@@ -340,10 +331,9 @@ function animer() {
     if (chrono.dernierChiffre) { // fin du décompte : top départ
       chrono.dernierChiffre = 0;
       bip(1);
-      document.getElementById('chrono-consigne').textContent = 'Tap pour arrêter';
+      document.getElementById('chrono-bouton').textContent = 'Arrêter';
     }
     el.textContent = chronoTexte(ms);
-    majBarre(ms / 1000);
   }
   animation = requestAnimationFrame(animer);
 }
@@ -351,7 +341,7 @@ function animer() {
 function toucherZone() {
   if (!chrono) {
     preparerSon();
-    chrono = { departA: Date.now() + (etat.reglages.decompte ? 3000 : 0), record: recordPerso(chronoExId) };
+    chrono = { departA: Date.now() + (etat.reglages.decompte ? 3000 : 0) };
     return rendre();
   }
   const ms = Date.now() - chrono.departA;
@@ -372,9 +362,9 @@ function toucherZone() {
   document.getElementById(`serie-${i}-${j}`)?.scrollIntoView({ block: 'center' });
 }
 
-// La zone réagit dès que le doigt touche l'écran (pas au relâché).
+// Le bouton réagit dès que le doigt le touche (pas au relâché) : le temps est plus juste.
 vue.addEventListener('pointerdown', e => {
-  if (!e.target.closest('#chrono-zone')) return;
+  if (!e.target.closest('#chrono-bouton')) return;
   e.preventDefault();
   toucherZone();
 });
@@ -692,7 +682,7 @@ function choisirOnglet(e) {
 }
 
 vue.addEventListener('click', e => {
-  if (e.target.closest('#chrono-zone') && e.detail === 0) return toucherZone(); // clavier / VoiceOver
+  if (e.target.closest('#chrono-bouton') && e.detail === 0) return toucherZone(); // clavier / VoiceOver
   const b = e.target.closest('[data-action]');
   if (!b) return;
   const s = seances.find(x => x.id === ouverteId);
@@ -724,11 +714,6 @@ vue.addEventListener('click', e => {
       if (!confirm('Vraiment ? C\'est définitif. Pense à exporter une sauvegarde avant.')) break;
       effacerTout();
       location.reload();
-      break;
-
-    case 'tenue':
-      chronoExId = b.dataset.id;
-      rendre();
       break;
 
     case 'vers-chrono':
@@ -821,6 +806,10 @@ vue.addEventListener('change', e => {
   const el = e.target;
   if (el.id === 'progres-exo') {
     progresExId = el.value;
+    return rendre();
+  }
+  if (el.id === 'chrono-exo') {
+    chronoExId = el.value;
     return rendre();
   }
   if (el.dataset.fichier) return importer(el);
@@ -963,6 +952,9 @@ document.addEventListener('visibilitychange', () => {
 navigator.serviceWorker?.register('sw.js').catch(() => {
   // Échec (ex. page ouverte en file://) : l'app marche quand même, seulement pas hors ligne.
 });
+
+// iOS n'applique le style :active (retour visuel au toucher) que si la page écoute touchstart.
+document.addEventListener('touchstart', () => {}, { passive: true });
 
 demanderPersistance();
 rendre();

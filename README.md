@@ -41,7 +41,7 @@ Mes données restent sur le téléphone, dans l'app installée (séparées de Sa
 
 L'app est servie depuis le cache du téléphone. Après avoir modifié un fichier :
 
-1. Dans `sw.js`, changer le numéro : `const CACHE = 'maztrix-v3';` → `'maztrix-v4'`.
+1. Dans `sw.js`, changer le numéro : `const CACHE = 'maztrix-v4';` → `'maztrix-v5'`.
 2. Envoyer les fichiers sur GitHub.
 3. Sur l'iPhone, ouvrir l'app avec du réseau, la fermer et la rouvrir.
 

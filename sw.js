@@ -2,7 +2,7 @@
 //
 // IMPORTANT : après avoir modifié un fichier de l'app, change le numéro (maztrix-v2, v3…)
 // sinon l'iPhone continue d'utiliser les anciens fichiers gardés en cache.
-const CACHE = 'maztrix-v3';
+const CACHE = 'maztrix-v4';
 
 const FICHIERS = [
   './',

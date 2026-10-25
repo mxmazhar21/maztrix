@@ -52,6 +52,7 @@
           } }));
         }
         iframe.style.height = (params.get('h') ?? 812) + 'px';
+        iframe.style.width = (params.get('l') ?? 375) + 'px';
         await charger(params.get('apercu'));
         for (const sel of params.getAll('clic')) { $(sel).click(); await attendre(200); }
         throw 'pause';
@@ -171,40 +172,30 @@
       iframe.contentWindow.Date.now = () => vraiNow() + decalage;
       $('.glisser-poignee').click();
       $('[data-onglet="chrono"]').click();
-      verifier('CHRONO : 4 exercices de tenue', iframe.contentDocument.querySelectorAll('.puces button').length === 4);
-      const zone = () => $('#chrono-zone');
+      verifier('CHRONO : 4 exercices de tenue', iframe.contentDocument.querySelectorAll('#chrono-exo option').length === 4);
+      const zone = () => $('#chrono-bouton');
       pointeur(zone(), 'pointerdown', 10);
-      verifier('tap = démarre', $('#chrono-consigne').textContent === 'Tap pour arrêter');
+      verifier('tap = démarre', zone().textContent === 'Arrêter');
       decalage = 12_340; // 12,3 s plus tard (même si l'app était en arrière-plan)
       pointeur(zone(), 'pointerdown', 10);
-      verifier('tap = arrête et enregistre 12,3 s', $('.chrono-essais strong')?.textContent === '12,3 s', $('.chrono-essais')?.textContent);
-      verifier('meilleure du jour = 12,3 s', $('.chrono-ligne strong')?.textContent === '12,3 s');
+      verifier('tap = arrête et enregistre 12,3 s', $('.tentatives strong')?.textContent === '12,3 s', $('.tentatives')?.textContent);
+      verifier('meilleure du jour = 12,3 s', $('.chrono-record').textContent.includes('Aujourd\'hui 12,3 s'), $('.chrono-record').textContent);
 
       $('[data-champ="decompte"]').click();
       pointeur(zone(), 'pointerdown', 10);
       await attendre(50);
       verifier('décompte 3-2-1 affiché', $('#chrono-temps').textContent === '3', $('#chrono-temps').textContent);
       pointeur(zone(), 'pointerdown', 10);
-      verifier('arrêt pendant le décompte : rien enregistré', iframe.contentDocument.querySelectorAll('.chrono-essais strong').length === 1);
+      verifier('arrêt pendant le décompte : rien enregistré', iframe.contentDocument.querySelectorAll('.tentatives li').length === 1);
       $('[data-champ="decompte"]').click();
 
-      // Barre vers le record (12,3 s) : « Record battu » une fois dépassé.
-      pointeur(zone(), 'pointerdown', 10);
-      // (en test headless, l'animation ne tourne pas : re-taper l'onglet redessine l'écran)
-      decalage += 6_000;
-      $('[data-onglet="chrono"]').click();
-      verifier('barre : « Record dans … » pendant la tentative', $('#chrono-barre-texte').textContent.startsWith('Record dans'), $('#chrono-barre-texte').textContent);
-      decalage += 7_000;
-      $('[data-onglet="chrono"]').click();
-      verifier('barre : « Record battu » après 13 s', $('#chrono-barre').classList.contains('battu') && $('#chrono-barre-texte').textContent === 'Record battu', $('#chrono-barre-texte').textContent + ' / temps ' + $('#chrono-temps').textContent);
-      pointeur(zone(), 'pointerdown', 10);
 
       // Depuis une série en secondes : le temps revient dans la série.
       $('[data-onglet="seance"]').click();
       $('.tete [data-action="ouvrir"]').click();
       $('.vers-chrono').click();
       verifier('bouton Chrono d\'une série ouvre CHRONO sur Handstand',
-        $('.puces [aria-pressed="true"]')?.textContent === 'Handstand libre au sol');
+        $('#chrono-exo').value === 'handstand-libre');
       pointeur(zone(), 'pointerdown', 10);
       decalage += 15_000;
       pointeur(zone(), 'pointerdown', 10);
@@ -294,6 +285,22 @@
       $('[data-action="copier-prompt"]').click();
       await attendre(50);
       verifier('prompt : bouton Copier', copie === prompt && $('[data-action="copier-prompt"]').textContent === 'Prompt copié');
+
+      // Responsive : aucun écran ne déborde sur le côté, du petit iPhone SE (320 px) au grand iPhone (430 px).
+      for (const largeur of [320, 430]) {
+        iframe.style.width = largeur + 'px';
+        await charger('index.html?date=2026-10-26');
+        $('.glisser-poignee').click();
+        const debordent = [];
+        for (const o of ['seance', 'programme', 'chrono', 'progres', 'reglages']) {
+          $(`[data-onglet="${o}"]`).click();
+          if (o === 'seance') $('.tete [data-action="ouvrir"]').click();
+          const d = iframe.contentDocument.documentElement;
+          if (d.scrollWidth > d.clientWidth) debordent.push(`${o} (${d.scrollWidth} px)`);
+        }
+        verifier(`${largeur} px : aucun écran ne déborde`, debordent.length === 0, debordent.join(', '));
+      }
+      iframe.style.width = '375px';
 
       // Le vendredi : écran REPOS.
       await charger('index.html?date=2026-10-30');
