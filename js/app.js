@@ -290,26 +290,38 @@ function vueChrono() {
   const record = recordPerso(chronoExId); // tentatives + séries en secondes
   const s = retourSerie && seances.find(x => x.id === retourSerie.seanceId);
   const zone = !chrono ? 'Tap pour démarrer' : Date.now() < chrono.departA ? 'Tap pour annuler' : 'Tap pour arrêter';
+  const essais = duJour.map((t, k) => `<li>#${k + 1} <strong>${secondes(t.duree)}</strong></li>`).reverse().join('');
+  const interrupteur = `<label class="interrupteur-ligne">3-2-1
+    <input type="checkbox" class="interrupteur" data-champ="decompte" ${etat.reglages.decompte ? 'checked' : ''}></label>`;
   return `
     ${s ? `${retour(s.titre, 'retour-seance')}
-      <p class="conseil">Le temps ira dans : ${s.exercices[retourSerie.i].nom} — série ${retourSerie.j + 1}</p>`
-      : `<header class="tete tete-courte"><h1 class="titre">Chrono</h1></header>`}
+      <p class="conseil">Le temps ira dans : ${s.exercices[retourSerie.i].nom} — série ${retourSerie.j + 1}</p>${interrupteur}`
+      : `<header class="tete tete-courte"><h1 class="titre">Chrono</h1>${interrupteur}</header>`}
     <div class="puces">${tenues.map(([id, nom]) =>
       `<button data-action="tenue" data-id="${id}" aria-pressed="${id === chronoExId}" ${chrono || s ? 'disabled' : ''}>${nom}</button>`).join('')}
     </div>
-    <label class="bascule"><input type="checkbox" data-champ="decompte" ${etat.reglages.decompte ? 'checked' : ''}> Décompte 3-2-1</label>
-    <div class="chrono-records">
-      <p>Meilleure du jour<strong>${secondes(Math.max(...duJour.map(t => t.duree)))}</strong></p>
+    <div id="chrono-temps" class="chrono-temps">${chronoTexte(0)}</div>
+    <div id="chrono-barre" class="chrono-barre">
+      <span class="chrono-piste"></span>
+      <span id="chrono-barre-texte">${record ? secondes(record) : 'Pas encore de record'}</span>
+    </div>
+    <div class="chrono-ligne">
+      <p>Jour<strong>${secondes(Math.max(...duJour.map(t => t.duree)))}</strong></p>
       <p>Record<strong>${secondes(record)}</strong></p>
     </div>
-    <h2 class="section">Tentatives du jour</h2>
-    ${duJour.length
-      ? `<ol class="tentatives">${duJour.map((t, k) => `<li><span>#${k + 1}</span><strong>${secondes(t.duree)}</strong></li>`).reverse().join('')}</ol>`
-      : `<p class="exo-infos">Aucune tentative aujourd'hui.</p>`}
-    <button id="chrono-zone" class="chrono-zone${chrono ? ' en-cours' : ''}">
-      <span id="chrono-temps" class="chrono-temps">${chronoTexte(0)}</span>
-      <span id="chrono-consigne">${zone}</span>
-    </button>`;
+    <button id="chrono-zone" class="chrono-zone${chrono ? ' en-cours' : ''}"><span id="chrono-consigne">${zone}</span></button>
+    <ol class="chrono-essais" aria-label="Tentatives du jour">${essais || `<li>Aucune tentative aujourd'hui</li>`}</ol>`;
+}
+
+// Barre vers le record : se remplit pendant la tentative, passe en blanc une fois le record battu.
+function majBarre(s) {
+  const barre = document.getElementById('chrono-barre');
+  if (!barre || !chrono.record) return;
+  const battu = s > chrono.record;
+  barre.style.setProperty('--p', Math.min(1, s / chrono.record));
+  barre.classList.toggle('battu', battu);
+  document.getElementById('chrono-barre-texte').textContent =
+    battu ? 'Record battu' : `Record dans ${nombre((chrono.record - s).toFixed(1))} s`;
 }
 
 // Rafraîchit l'affichage ; le temps vient toujours de l'heure de départ (juste même en arrière-plan).
@@ -331,6 +343,7 @@ function animer() {
       document.getElementById('chrono-consigne').textContent = 'Tap pour arrêter';
     }
     el.textContent = chronoTexte(ms);
+    majBarre(ms / 1000);
   }
   animation = requestAnimationFrame(animer);
 }
@@ -338,7 +351,7 @@ function animer() {
 function toucherZone() {
   if (!chrono) {
     preparerSon();
-    chrono = { departA: Date.now() + (etat.reglages.decompte ? 3000 : 0) };
+    chrono = { departA: Date.now() + (etat.reglages.decompte ? 3000 : 0), record: recordPerso(chronoExId) };
     return rendre();
   }
   const ms = Date.now() - chrono.departA;
@@ -481,7 +494,8 @@ function vueReglages() {
     <section class="exo">
       <label class="champ"><span>Poids de corps (kg)</span>
         <input data-reglage="pdcKg" inputmode="decimal" value="${nombre(r.pdcKg)}"></label>
-      <label class="bascule"><input type="checkbox" data-reglage="son" ${r.son ? 'checked' : ''}> Bip à la fin du repos</label>
+      <label class="interrupteur-ligne reglage">Bip à la fin du repos
+        <input type="checkbox" class="interrupteur" data-reglage="son" ${r.son ? 'checked' : ''}></label>
     </section>
     <section class="exo">
       <h2 class="exo-nom">Sauvegarde</h2>

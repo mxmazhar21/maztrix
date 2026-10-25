@@ -42,7 +42,9 @@
           const serie = (kg, reps) => ({ statut: 'fait', chargeKg: kg, reps, t: 1 });
           const seance = (date, ...series) => ({ date, terminee: true, echauffement: {}, exercices: {
             0: { id: 'traction-lestee', nom: 'Traction lestée', type: 'leste', series: Object.fromEntries(series.map((s, k) => [k, s])) } } });
-          localStorage.setItem(CLE, JSON.stringify({ reglages: { pdcKg: 69, son: true }, tentatives: [], repos: null, seances: {
+          const essai = (duree, date = '2026-10-26') => ({ exId: 'handstand-libre', date, duree, t: 1 });
+          localStorage.setItem(CLE, JSON.stringify({ reglages: { pdcKg: 69, son: true }, repos: null,
+            tentatives: [essai(15, '2026-10-24'), essai(6.1), essai(9.8), essai(12.3)], seances: {
             'S2-lundi': seance('2026-10-26', serie(45, 2), serie(37.5, 3)),
             'S3-lundi': seance('2026-11-02', serie(47.5, 1), serie(42.5, 2)),
             'S4-lundi': seance('2026-11-09', serie(32.5, 2)),
@@ -175,16 +177,27 @@
       verifier('tap = démarre', $('#chrono-consigne').textContent === 'Tap pour arrêter');
       decalage = 12_340; // 12,3 s plus tard (même si l'app était en arrière-plan)
       pointeur(zone(), 'pointerdown', 10);
-      verifier('tap = arrête et enregistre 12,3 s', $('.tentatives strong')?.textContent === '12,3 s', $('.tentatives')?.textContent);
-      verifier('meilleure du jour = 12,3 s', $('.chrono-records strong')?.textContent === '12,3 s');
+      verifier('tap = arrête et enregistre 12,3 s', $('.chrono-essais strong')?.textContent === '12,3 s', $('.chrono-essais')?.textContent);
+      verifier('meilleure du jour = 12,3 s', $('.chrono-ligne strong')?.textContent === '12,3 s');
 
       $('[data-champ="decompte"]').click();
       pointeur(zone(), 'pointerdown', 10);
       await attendre(50);
       verifier('décompte 3-2-1 affiché', $('#chrono-temps').textContent === '3', $('#chrono-temps').textContent);
       pointeur(zone(), 'pointerdown', 10);
-      verifier('arrêt pendant le décompte : rien enregistré', iframe.contentDocument.querySelectorAll('.tentatives li').length === 1);
+      verifier('arrêt pendant le décompte : rien enregistré', iframe.contentDocument.querySelectorAll('.chrono-essais strong').length === 1);
       $('[data-champ="decompte"]').click();
+
+      // Barre vers le record (12,3 s) : « Record battu » une fois dépassé.
+      pointeur(zone(), 'pointerdown', 10);
+      // (en test headless, l'animation ne tourne pas : re-taper l'onglet redessine l'écran)
+      decalage += 6_000;
+      $('[data-onglet="chrono"]').click();
+      verifier('barre : « Record dans … » pendant la tentative', $('#chrono-barre-texte').textContent.startsWith('Record dans'), $('#chrono-barre-texte').textContent);
+      decalage += 7_000;
+      $('[data-onglet="chrono"]').click();
+      verifier('barre : « Record battu » après 13 s', $('#chrono-barre').classList.contains('battu') && $('#chrono-barre-texte').textContent === 'Record battu', $('#chrono-barre-texte').textContent + ' / temps ' + $('#chrono-temps').textContent);
+      pointeur(zone(), 'pointerdown', 10);
 
       // Depuis une série en secondes : le temps revient dans la série.
       $('[data-onglet="seance"]').click();

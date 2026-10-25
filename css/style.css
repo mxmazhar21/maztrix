@@ -457,38 +457,158 @@ main {
 
 /* --- Écran CHRONO -------------------------------------------------------- */
 
-main.avec-zone { padding-bottom: calc(45vh + var(--onglets) + env(safe-area-inset-bottom) + 16px); }
+main.avec-zone { padding-bottom: calc(38vh + 48px + var(--onglets) + env(safe-area-inset-bottom) + 16px); }
 
-.tete-courte { padding: 8px 0 0; }
+/* En-tête court : titre à gauche, interrupteur 3-2-1 à droite */
+.tete-courte { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 0; }
 .tete-courte .titre { margin: 0; }
-.puces { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 12px; }
-.puces button { padding: 4px 8px; font-size: 13px; font-weight: 600; line-height: 1.2; }
+
+/* Exercices : une ligne de puces qui défile */
+.puces {
+  display: flex;
+  gap: 6px;
+  margin: 12px -16px 0;
+  padding: 0 16px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.puces::-webkit-scrollbar { display: none; }
+.puces button {
+  flex: none;
+  padding: 0 16px;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  scroll-snap-align: start;
+}
 .puces button[aria-pressed="true"] { background: var(--texte); color: var(--fond); border-color: var(--texte); }
 
-.bascule {
+/* Le temps : l'élément le plus gros de l'écran */
+.chrono-temps {
+  margin-top: 8px;
+  text-align: center;
+  font: 800 clamp(96px, 28vw, 150px)/1 var(--corps);
+  letter-spacing: -.03em;
+}
+
+/* Barre vers le record */
+.chrono-barre {
+  --p: 0;
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: var(--tap);
-  color: var(--texte-2);
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 13px;
   font-weight: 600;
+  color: var(--texte-2);
 }
-.bascule input { width: 24px; height: 24px; accent-color: var(--acier); }
+.chrono-piste {
+  flex: 1;
+  height: 10px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--acier) calc(var(--p) * 100%), var(--surface-2) 0); /* aplat net */
+}
+.chrono-barre.battu { color: var(--texte); }
+.chrono-barre.battu .chrono-piste { background: var(--texte); }
 
-.chrono-records { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.chrono-records p {
+.chrono-ligne { display: flex; align-items: center; gap: 16px; margin-top: 10px; }
+.chrono-ligne p {
   margin: 0;
-  padding: 10px 12px;
-  background: var(--surface);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--texte-2);
+}
+.chrono-ligne strong { margin-left: 6px; font-size: 18px; letter-spacing: 0; text-transform: none; color: var(--texte); }
+
+/* Interrupteur carré (plutôt qu'une case à cocher) */
+.interrupteur-ligne {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tap);
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--texte-2);
+}
+.reglage { margin: 8px 0 0; justify-content: space-between; color: var(--texte); font-size: 15px; font-weight: 600; }
+.interrupteur {
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  width: 52px;
+  height: 30px;
+  margin: 0;
+  background: var(--surface-2);
   border: 1px solid var(--bordure);
   border-radius: 3px;
-  font-size: 11px;
-  color: var(--texte-2);
-  text-transform: uppercase;
-  letter-spacing: .06em;
+  cursor: pointer;
+  transition: background-color 120ms, border-color 120ms;
 }
-.chrono-records strong { display: block; font-size: 26px; color: var(--texte); letter-spacing: 0; text-transform: none; }
+.interrupteur::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 2px;
+  background: var(--texte-2);
+  transition: transform 120ms;
+}
+.interrupteur:checked { background: var(--acier); border-color: var(--acier); }
+.interrupteur:checked::after { transform: translateX(22px); background: var(--fond); }
 
+/* Moitié basse : zone de tap pour démarrer / arrêter, utilisable d'une main */
+.chrono-zone {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--onglets) + env(safe-area-inset-bottom) + 48px);
+  height: 38vh;
+  z-index: 4;
+  border-radius: 0;
+  border-width: 1px 0;
+  background: var(--surface);
+  font: 32px/1 var(--titre);
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.chrono-zone.en-cours { background: var(--texte); color: var(--fond); }
+
+/* Tentatives du jour, en bande sous la zone */
+.chrono-essais {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--onglets) + env(safe-area-inset-bottom));
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  height: 48px;
+  margin: 0;
+  padding: 0 16px;
+  overflow-x: auto;
+  white-space: nowrap;
+  list-style: none;
+  background: var(--fond);
+  font-size: 13px;
+  color: var(--texte-2);
+  scrollbar-width: none;
+}
+.chrono-essais::-webkit-scrollbar { display: none; }
+.chrono-essais strong { margin-left: 4px; font-size: 16px; color: var(--texte); }
+
+/* Liste des records (PROGRÈS) */
 .tentatives { list-style: none; margin: 0; padding: 0; }
 .tentatives li {
   display: flex;
@@ -498,36 +618,6 @@ main.avec-zone { padding-bottom: calc(45vh + var(--onglets) + env(safe-area-inse
   color: var(--texte-2);
 }
 .tentatives strong { color: var(--texte); font-size: 20px; }
-
-/* Toute la moitié basse : zone de tap pour démarrer / arrêter, utilisable d'une main */
-.chrono-zone {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: calc(var(--onglets) + env(safe-area-inset-bottom));
-  height: 45vh;
-  z-index: 4;
-  border-radius: 0;
-  border-width: 1px 0 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: var(--surface);
-  font: 24px/1 var(--titre);
-  text-transform: uppercase;
-  letter-spacing: .02em;
-  touch-action: manipulation;
-  -webkit-user-select: none;
-  user-select: none;
-}
-.chrono-zone.en-cours { background: var(--texte); color: var(--fond); }
-.chrono-temps {
-  font: 800 clamp(96px, 30vw, 160px)/1 var(--corps);
-  letter-spacing: -.03em;
-  text-transform: none;
-}
 
 .champs { align-items: flex-end; }
 .vers-chrono { min-height: 50px; padding: 0 14px; font-weight: 700; text-transform: uppercase; font-size: 13px; letter-spacing: .06em; }
