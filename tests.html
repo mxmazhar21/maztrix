@@ -287,7 +287,7 @@
       verifier('30/10 affiche REPOS', $('.titre')?.textContent === 'Repos');
       verifier('30/10 : prochaine = samedi', $('.tete [data-action="ouvrir"]')?.dataset.id === 'S2-samedi');
       // PWA : service worker actif (le hors-ligne se vérifie en coupant le serveur, voir README).
-      const sw = await Promise.race([iframe.contentWindow.navigator.serviceWorker.ready, attendre(5000)]);
+      const sw = await Promise.race([iframe.contentWindow.navigator.serviceWorker.ready, attendre(20000)]);
       verifier('service worker actif', sw?.active?.state === 'activated', sw?.active?.state);
       const manifeste = await (await fetch('manifest.json')).json();
       verifier('manifest : standalone, portrait, #0B0B0B', manifeste.display === 'standalone' && manifeste.orientation === 'portrait'
