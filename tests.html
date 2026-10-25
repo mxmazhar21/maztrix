@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Maztrix — tests</title>
+  <style>
+    body { font: 14px/1.5 system-ui; background: #111; color: #eee; padding: 16px; }
+    .ok { color: #8c8; } .ko { color: #e77; }
+    iframe { width: 375px; height: 812px; border: 1px solid #333; }
+  </style>
+</head>
+<body>
+  <!-- Tests automatiques : lancer le serveur local puis ouvrir http://localhost:8000/tests.html
+       Mes vraies données sont mises de côté pendant le test puis remises en place. -->
+  <h1>Tests Maztrix</h1>
+  <ul id="res"></ul>
+  <iframe id="app"></iframe>
+  <script type="module">
+    import { toutesLesSeances, seanceDuJour, prochaineSeance, dureeTexte, repsTexte, erreurProgramme } from './js/program.js';
+
+    const CLE = 'maztrix-v1';
+    const res = document.getElementById('res');
+    let echecs = 0;
+    const verifier = (nom, ok, detail = '') => {
+      if (!ok) echecs++;
+      res.insertAdjacentHTML('beforeend', `<li class="${ok ? 'ok' : 'ko'}">${ok ? 'OK' : 'ÉCHEC'} — ${nom} ${ok ? '' : detail}</li>`);
+    };
+    const attendre = ms => new Promise(r => setTimeout(r, ms));
+    const iframe = document.getElementById('app');
+    const charger = url => new Promise(r => { iframe.onload = () => setTimeout(r, 300); iframe.src = url; });
+    const $ = sel => iframe.contentDocument.querySelector(sel);
+
+    const params = new URLSearchParams(location.search);
+    const sauvegarde = localStorage.getItem(CLE);
+    const erreurs = [];
+    try {
+      // tests.html?apercu=index.html%3Fdate%3D2026-10-26&h=2400 : affiche juste l'app à 375 px de large.
+      // &clic=sélecteur (répétable) : clique ces éléments dans l'ordre après le chargement.
+      // &exemple : charge 4 séances de tractions fictives le temps de l'aperçu (remises à zéro après).
+      if (params.has('apercu')) {
+        if (params.has('exemple')) {
+          const serie = (kg, reps) => ({ statut: 'fait', chargeKg: kg, reps, t: 1 });
+          const seance = (date, ...series) => ({ date, terminee: true, echauffement: {}, exercices: {
+            0: { id: 'traction-lestee', nom: 'Traction lestée', type: 'leste', series: Object.fromEntries(series.map((s, k) => [k, s])) } } });
+          localStorage.setItem(CLE, JSON.stringify({ reglages: { pdcKg: 69, son: true }, tentatives: [], repos: null, seances: {
+            'S2-lundi': seance('2026-10-26', serie(45, 2), serie(37.5, 3)),
+            'S3-lundi': seance('2026-11-02', serie(47.5, 1), serie(42.5, 2)),
+            'S4-lundi': seance('2026-11-09', serie(32.5, 2)),
+            'TEST-lundi': seance('2026-11-16', serie(50, 1)),
+          } }));
+        }
+        iframe.style.height = (params.get('h') ?? 812) + 'px';
+        await charger(params.get('apercu'));
+        for (const sel of params.getAll('clic')) { $(sel).click(); await attendre(200); }
+        throw 'pause';
+      }
+      // --- Programme -----------------------------------------------------
+      const prog = await (await fetch('data/programme.json')).json();
+      const seances = toutesLesSeances(prog);
+      verifier('4 blocs dans le programme', prog.semaines.length === 4);
+      verifier('26/10 = Force traction (S2)', seanceDuJour(seances, '2026-10-26')?.id === 'S2-lundi');
+      verifier('30/10 = repos', seanceDuJour(seances, '2026-10-30') === null);
+      verifier('après le 30/10 : samedi 31/10', prochaineSeance(seances, '2026-10-30')?.id === 'S2-samedi');
+      verifier('formats', dureeTexte(240, 300) === '4–5 min' && dureeTexte(45, 60) === '45–60 s'
+        && repsTexte(seanceDuJour(seances, '2026-11-03').exercices[2]) === '4×2 + 1×max');
+
+      // --- App : séance du jour + chrono de repos ------------------------
+      localStorage.removeItem(CLE);
+      await charger('index.html?date=2026-10-26');
+      iframe.contentWindow.addEventListener('error', e => erreurs.push(e.message));
+
+      // Présentation : glisser la poignée jusqu'au bout ouvre l'app.
+      verifier('page de présentation au lancement', !$('#intro').hidden);
+      const poignee = $('.glisser-poignee'), x0 = poignee.getBoundingClientRect().left + 10;
+      const P = iframe.contentWindow.PointerEvent;
+      const pointeur = (el, type, x) => el.dispatchEvent(new P(type, { clientX: x, pointerId: 1, pointerType: 'mouse', bubbles: true }));
+      pointeur(poignee, 'pointerdown', x0);
+      pointeur(poignee, 'pointermove', x0 + 100);
+      pointeur(poignee, 'pointerup', x0 + 100);
+      await attendre(200);
+      verifier('glisser à moitié ne suffit pas', !$('#intro').hidden);
+      pointeur(poignee, 'pointerdown', x0);
+      pointeur(poignee, 'pointermove', x0 + 400);
+      pointeur(poignee, 'pointerup', x0 + 400);
+      await attendre(200);
+      verifier('glisser jusqu\'au bout ouvre l\'app', $('#intro').hidden);
+
+      // Accueil → semaine → jour.
+      verifier('26/10 : l\'accueil propose FORCE TRACTION', $('.titre')?.textContent === 'Force traction');
+      verifier('accueil : 4 semaines', iframe.contentDocument.querySelectorAll('[data-action="semaine"]').length === 4);
+      $('[data-action="semaine"][data-id="S3"]').click();
+      verifier('Semaine 3 : 5 jours', iframe.contentDocument.querySelectorAll('[data-action="ouvrir"]').length === 5);
+      $('[data-action="ouvrir"][data-id="S3-mardi"]').click();
+      verifier('mardi S3 ouvre SKILLS', $('.titre')?.textContent === 'Skills');
+      $('[data-action="retour"]').click();
+      $('[data-action="retour"]').click();
+      verifier('retour jusqu\'à l\'accueil', !!$('[data-action="semaine"]'));
+      $('.tete [data-action="ouvrir"]').click();
+      verifier('« Commencer la séance du jour » ouvre FORCE TRACTION', $('.titre')?.textContent === 'Force traction');
+
+      $('.st-fait').click();
+      await attendre(100);
+      verifier('FAIT lance le repos', !$('#repos').hidden);
+      verifier('repos démarre à la borne basse (4:00) et affiche la plage',
+        $('#repos-temps').textContent === '4:00' && $('#repos-plage').textContent === '4–5 min', $('#repos-temps').textContent);
+      verifier('prochaine série affichée', $('#repos-suivant').textContent === 'Traction lestée — back-off — série 1/3');
+
+      const enregistre = JSON.parse(localStorage.getItem(CLE)).seances['S2-lundi'].exercices[0].series[0];
+      verifier('série sauvegardée avec la charge prescrite', enregistre.statut === 'fait' && enregistre.chargeKg === 45 && enregistre.reps === 2);
+
+      // Simule 2 minutes en arrière-plan : on avance l'horloge de l'app puis on revient au premier plan.
+      const vraiNow = Date.now;
+      iframe.contentWindow.Date.now = () => vraiNow() + 120_000;
+      iframe.contentDocument.dispatchEvent(new Event('visibilitychange'));
+      const t = $('#repos-temps').textContent;
+      verifier('après 2 min en arrière-plan : il reste 2:00', t === '2:00' || t === '1:59', t);
+
+      if (new URLSearchParams(location.search).has('pause')) throw 'pause';
+
+      // Rechargement : la série et le repos en cours sont toujours là.
+      await charger('index.html?date=2026-10-26');
+      iframe.contentWindow.addEventListener('error', e => erreurs.push(e.message));
+      verifier('après rechargement : série toujours FAIT', $('.st-fait').getAttribute('aria-pressed') === 'true');
+      verifier('après rechargement : repos toujours en cours', !$('#repos').hidden);
+
+      $('[data-repos="passer"]').click();
+      verifier('PASSER ferme le repos', $('#repos').hidden);
+
+      // RATÉ lance aussi le repos vers la série suivante.
+      $('.exo:nth-of-type(2) .serie:nth-child(1) .st-rate').click();
+      await attendre(50);
+      verifier('RATÉ lance le repos vers la série 2', !$('#repos').hidden
+        && $('#repos-suivant').textContent === 'Traction lestée — back-off — série 2/3', $('#repos-suivant').textContent);
+      $('[data-repos="passer"]').click();
+      $('[data-action="annuler"]').click();
+      await attendre(50);
+
+      // Stepper puis Annuler.
+      $('.exo:nth-of-type(1) .serie:nth-child(1) [data-v="2.5"]').click();
+      await attendre(50);
+      verifier('stepper +2,5 kg', $('.serie [data-champ="chargeKg"]').value === '47,5');
+      $('[data-action="annuler"]').click();
+      await attendre(50);
+      verifier('Annuler remet 45 kg', $('.serie [data-champ="chargeKg"]').value === '45');
+
+      // Barre de difficulté : un tap aux 3/4 de la barre = RPE 9.
+      const barre = $('.serie input[type="range"]'), rect = barre.getBoundingClientRect();
+      pointeur(barre, 'pointerdown', rect.left + rect.width * 0.75);
+      pointeur(barre, 'pointerup', rect.left + rect.width * 0.75);
+      await attendre(50);
+      const rpe = JSON.parse(localStorage.getItem(CLE)).seances['S2-lundi'].exercices[0].series[0].rpe;
+      verifier('barre de difficulté : tap aux 3/4 → 9 sauvegardé', rpe === 9, rpe);
+      verifier('barre de difficulté : texte « Très dur »', $('.difficulte-texte').textContent === 'Très dur · 1 en réserve');
+
+      // GRIND sur le top set → conseil sur les back-off.
+      $('[data-action="ressenti"][data-v="GRIND"]').click();
+      await attendre(50);
+      verifier('GRIND → −2,5 kg conseillé sur les back-off', $('.conseil')?.textContent.includes('+35 kg'));
+
+      // Fin de séance.
+      $('[data-action="terminer"]').click();
+      await attendre(50);
+      verifier('récap affiché (1 série faite)', $('.recap strong')?.textContent === '1');
+
+      // --- CHRONO --------------------------------------------------------
+      await charger('index.html?date=2026-10-27');
+      iframe.contentWindow.addEventListener('error', e => erreurs.push(e.message));
+      let decalage = 0;
+      iframe.contentWindow.Date.now = () => vraiNow() + decalage;
+      $('.glisser-poignee').click();
+      $('[data-onglet="chrono"]').click();
+      verifier('CHRONO : 4 exercices de tenue', iframe.contentDocument.querySelectorAll('.puces button').length === 4);
+      const zone = () => $('#chrono-zone');
+      pointeur(zone(), 'pointerdown', 10);
+      verifier('tap = démarre', $('#chrono-consigne').textContent === 'Tap pour arrêter');
+      decalage = 12_340; // 12,3 s plus tard (même si l'app était en arrière-plan)
+      pointeur(zone(), 'pointerdown', 10);
+      verifier('tap = arrête et enregistre 12,3 s', $('.tentatives strong')?.textContent === '12,3 s', $('.tentatives')?.textContent);
+      verifier('meilleure du jour = 12,3 s', $('.chrono-records strong')?.textContent === '12,3 s');
+
+      $('[data-champ="decompte"]').click();
+      pointeur(zone(), 'pointerdown', 10);
+      await attendre(50);
+      verifier('décompte 3-2-1 affiché', $('#chrono-temps').textContent === '3', $('#chrono-temps').textContent);
+      pointeur(zone(), 'pointerdown', 10);
+      verifier('arrêt pendant le décompte : rien enregistré', iframe.contentDocument.querySelectorAll('.tentatives li').length === 1);
+      $('[data-champ="decompte"]').click();
+
+      // Depuis une série en secondes : le temps revient dans la série.
+      $('[data-onglet="seance"]').click();
+      $('.tete [data-action="ouvrir"]').click();
+      $('.vers-chrono').click();
+      verifier('bouton Chrono d\'une série ouvre CHRONO sur Handstand',
+        $('.puces [aria-pressed="true"]')?.textContent === 'Handstand libre au sol');
+      pointeur(zone(), 'pointerdown', 10);
+      decalage += 15_000;
+      pointeur(zone(), 'pointerdown', 10);
+      const serieHs = JSON.parse(localStorage.getItem(CLE)).seances['S2-mardi']?.exercices[0].series[0];
+      verifier('15 s renvoyées dans la série 1', serieHs?.duree === 15 && $('.titre')?.textContent === 'Skills'
+        && $('#serie-0-0 [data-champ="duree"]').value === '15', JSON.stringify(serieHs));
+
+      // --- PROGRAMME -----------------------------------------------------
+      $('[data-onglet="programme"]').click();
+      verifier('PROGRAMME : 16 séances listées', iframe.contentDocument.querySelectorAll('.ligne[data-action="ouvrir"]').length === 16);
+      verifier('PROGRAMME : lundi S2 terminé incomplet = Partielle',
+        $('[data-id="S2-lundi"] .ligne-statut')?.textContent === 'Partielle');
+      $('[data-id="S3-jeudi"]').click();
+      verifier('PROGRAMME : un jour ouvre sa séance', $('.titre')?.textContent === 'Haut de traction');
+
+      // --- PROGRÈS -------------------------------------------------------
+      $('[data-onglet="progres"]').click();
+      const ligneTableau = $('.g-tableau tbody tr')?.textContent ?? '';
+      verifier('PROGRÈS tractions : lest +45 kg et 1RM Epley +52,6 kg (PDC 69)',
+        ligneTableau.includes('+45 kg') && ligneTableau.includes('+52,6 kg'), ligneTableau);
+      verifier('PROGRÈS tractions : ligne d\'objectif +52,5 kg', !!$('.g-objectif') && $('.g-legende').textContent.includes('Objectif +52,5 kg'));
+      const sel = $('#progres-exo');
+      sel.value = 'handstand-libre';
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      verifier('PROGRÈS handstand : meilleure tenue du 27/10 = 15 s', $('.g-tableau tbody tr')?.textContent.includes('15 s'));
+      verifier('records : handstand 15 s, tractions +45 kg',
+        [...iframe.contentDocument.querySelectorAll('.tentatives li')].map(li => li.textContent).join('|').includes('Handstand libre au sol15 s')
+        && $('.tentatives').textContent.includes('+45 kg'));
+
+      // --- Réglages : export → réinitialisation → import ------------------
+      const avantExport = localStorage.getItem(CLE);
+      let exporte = null;
+      const W = iframe.contentWindow;
+      W.navigator.canShare = () => true;
+      W.navigator.share = async ({ files }) => { exporte = await files[0].text(); };
+      W.confirm = () => true;
+      $('[data-onglet="reglages"]').click();
+      $('[data-action="exporter"]').click();
+      await attendre(100);
+      verifier('export : le fichier contient toutes mes données', exporte != null
+        && JSON.stringify(JSON.parse(exporte)) === JSON.stringify(JSON.parse(avantExport)));
+
+      const rechargement = () => new Promise(r => { iframe.onload = () => setTimeout(r, 300); });
+      let fin = rechargement();
+      $('[data-action="reinitialiser"]').click();
+      await fin;
+      verifier('réinitialisation (2 confirmations) : tout est effacé', localStorage.getItem(CLE) === null);
+
+      const envoyerFichier = async (selecteur, texte) => {
+        const Wn = iframe.contentWindow, dt = new Wn.DataTransfer();
+        dt.items.add(new Wn.File([texte], 'f.json', { type: 'application/json' }));
+        const champ = $(selecteur);
+        champ.files = dt.files;
+        champ.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+      iframe.contentWindow.confirm = () => true;
+      $('[data-onglet="reglages"]').click();
+      fin = rechargement();
+      await envoyerFichier('[data-fichier="sauvegarde"]', exporte);
+      await fin;
+      verifier('import : la sauvegarde restaure tout', localStorage.getItem(CLE) === avantExport);
+
+      // Programme importé : refusé s'il est mal formé, accepté sinon.
+      let alerte = '';
+      iframe.contentWindow.alert = m => (alerte = m);
+      iframe.contentWindow.confirm = () => true;
+      $('[data-onglet="reglages"]').click();
+      await envoyerFichier('[data-fichier="programme"]', '{"semaines": []}');
+      for (let k = 0; k < 20 && !alerte; k++) await attendre(100);
+      verifier('programme mal formé refusé', alerte.startsWith('Programme refusé'), alerte);
+      const nouveau = { ...prog, nom: 'Cycle 2' };
+      fin = rechargement();
+      await envoyerFichier('[data-fichier="programme"]', JSON.stringify(nouveau));
+      await fin;
+      $('[data-onglet="reglages"]').click();
+      verifier('programme importé utilisé', $('.exo-infos')?.textContent.startsWith('Actuel : Cycle 2 (importé)'));
+
+      // Prompt pour un nouveau programme : liste des 22 id, exemple valide, bouton Copier.
+      const prompt = $('#prompt-programme').value;
+      verifier('prompt : les 22 id déjà utilisés', (prompt.split('ID DÉJÀ UTILISÉS DANS MON APP')[1].split('MON PROGRAMME')[0].match(/^- [a-z0-9-]+ : /gm) ?? []).length === 22
+        && prompt.includes('- traction-lestee : Traction lestée (leste)'));
+      const exemple = JSON.parse(prompt.split('\n').find(l => l.startsWith('{ "id": "traction-lestee"')));
+      verifier('prompt : l\'exemple d\'exercice passe la vérification d\'import', erreurProgramme({ semaines: [{ id: 'S1', nom: 'S1',
+        seances: [{ id: 'S1-lundi', date: '2026-11-23', titre: 'T', exercices: [exemple] }] }] }) === null);
+      let copie = '';
+      iframe.contentWindow.navigator.clipboard.writeText = async t => { copie = t; };
+      $('[data-action="copier-prompt"]').click();
+      await attendre(50);
+      verifier('prompt : bouton Copier', copie === prompt && $('[data-action="copier-prompt"]').textContent === 'Prompt copié');
+
+      // Le vendredi : écran REPOS.
+      await charger('index.html?date=2026-10-30');
+      verifier('30/10 affiche REPOS', $('.titre')?.textContent === 'Repos');
+      verifier('30/10 : prochaine = samedi', $('.tete [data-action="ouvrir"]')?.dataset.id === 'S2-samedi');
+      // PWA : service worker actif (le hors-ligne se vérifie en coupant le serveur, voir README).
+      const sw = await Promise.race([iframe.contentWindow.navigator.serviceWorker.ready, attendre(5000)]);
+      verifier('service worker actif', sw?.active?.state === 'activated', sw?.active?.state);
+      const manifeste = await (await fetch('manifest.json')).json();
+      verifier('manifest : standalone, portrait, #0B0B0B', manifeste.display === 'standalone' && manifeste.orientation === 'portrait'
+        && manifeste.background_color === '#0B0B0B' && manifeste.theme_color === '#0B0B0B');
+      verifier('aucune erreur JS dans l\'app', erreurs.length === 0, erreurs.join(' | '));
+    } catch (e) {
+      if (e !== 'pause') verifier('exception', false, e);
+    } finally {
+      if (!new URLSearchParams(location.search).has('pause')) {
+        if (sauvegarde == null) localStorage.removeItem(CLE);
+        else localStorage.setItem(CLE, sauvegarde);
+      }
+      document.title = echecs ? `ÉCHECS : ${echecs}` : 'TOUT OK';
+    }
+  </script>
+</body>
+</html>

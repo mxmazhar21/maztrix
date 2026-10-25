@@ -1,0 +1,249 @@
+{
+  "version": 1,
+  "nom": "Cycle +52,5",
+  "objectif": "+52,5 kg le 16/11",
+  "objectifKg": 52.5,
+  "pdcKg": 69,
+  "regles": [
+    "RPE 8 = 2 reps en réserve.",
+    "Ouverture : single de la S3 à +47,5 rapide → tentative 1 à +52,5 kg. Single dur → tentative 1 à +50 kg, puis +52,5 kg.",
+    "Top set trop dure (rep très lente) → −2,5 kg sur les back-off.",
+    "Fatigue → alléger d'abord le jeudi, jamais le lundi.",
+    "Pas de dips tant que la douleur au sternum n'a pas disparu."
+  ],
+  "semaines": [
+    {
+      "id": "S2",
+      "nom": "Semaine 2",
+      "seances": [
+        {
+          "id": "S2-lundi",
+          "date": "2026-10-26",
+          "titre": "Force traction",
+          "echauffement": ["Mobilité épaules 3 min", "Traction PDC ×5", "Traction +15 kg ×3", "Traction +25 kg ×2", "Traction +35 kg ×1", "Traction +40 kg ×1"],
+          "exercices": [
+            { "id": "traction-lestee", "role": "top", "nom": "Traction lestée — top set", "type": "leste", "series": 1, "reps": 2, "chargeKg": 45, "chargeTexte": "+45 kg, RPE 8–9 (+42,5 si le 3×42,5 du 19/10 était très dur)", "reposMin": 240, "reposMax": 300 },
+            { "id": "traction-lestee", "role": "backoff", "nom": "Traction lestée — back-off", "type": "leste", "series": 3, "reps": 3, "chargeKg": 37.5, "chargeTexte": "+37,5 kg", "reposMin": 180, "reposMax": 180 },
+            { "id": "curl-barre", "nom": "Curl barre", "type": "charge", "series": 3, "reps": 6, "chargeKg": 32.5, "chargeTexte": "32,5 kg", "reposMin": 120, "reposMax": 120 }
+          ]
+        },
+        {
+          "id": "S2-mardi",
+          "date": "2026-10-27",
+          "titre": "Skills",
+          "echauffement": ["Poignets : bascules 2×10", "Poignets : décollages de paumes 2×10", "Poignets : planche lean sur les doigts 3×10 s", "Scapular push-ups 2×10", "Ventre au mur 2×30 s"],
+          "exercices": [
+            { "id": "handstand-libre", "nom": "Handstand libre au sol", "type": "tenue", "series": 8, "dureeMin": 10, "dureeMax": 20, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 45, "reposMax": 60, "consigne": "Tentatives" },
+            { "id": "decollages-mur", "nom": "Décollages du mur", "type": "tenue", "series": 3, "reps": 5, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 60, "reposMax": 60, "consigne": "Ventre au mur, tenue 2 s" },
+            { "id": "hspu-parallettes", "nom": "HSPU libre sur parallettes", "type": "reps", "series": 6, "reps": 2, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 180 },
+            { "id": "hspu-mur", "nom": "HSPU au mur", "type": "reps", "series": 3, "reps": 4, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 120, "consigne": "Descente 3 s" },
+            { "id": "fl-one-leg", "nom": "Front lever one leg", "type": "tenue", "series": 6, "dureeMin": 2, "dureeMax": 3, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 90, "reposMax": 90, "consigne": "Alterne la jambe" },
+            { "id": "fl-negatives-one-leg", "nom": "Front lever négatives one leg", "type": "reps", "series": 3, "reps": 2, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 120, "consigne": "Descente 4–5 s" }
+          ]
+        },
+        {
+          "id": "S2-mercredi",
+          "date": "2026-10-28",
+          "titre": "Jambes",
+          "echauffement": [],
+          "exercices": [
+            { "id": "leg-extension", "nom": "Leg extension", "type": "charge", "series": 3, "reps": 12, "chargeKg": null, "chargeTexte": "Charge du 21/10 + 2,5 à 5 kg", "reposMin": 90, "reposMax": 90 },
+            { "id": "leg-press", "nom": "Leg press", "type": "charge", "series": 3, "reps": 10, "chargeKg": null, "chargeTexte": "21/10 + 5 à 10 kg", "reposMin": 90, "reposMax": 90 },
+            { "id": "mollets-machine", "nom": "Mollets (machine)", "type": "charge", "series": 3, "reps": 15, "chargeKg": null, "chargeTexte": "21/10 + 2,5 à 5 kg", "reposMin": 60, "reposMax": 90 },
+            { "id": "course", "nom": "Course à pied", "type": "course", "series": 1, "dureeMin": 1200, "dureeMax": 1500, "chargeKg": null, "chargeTexte": "Modérée", "reposMin": null, "reposMax": null }
+          ]
+        },
+        {
+          "id": "S2-jeudi",
+          "date": "2026-10-29",
+          "titre": "Haut de traction",
+          "echauffement": ["Traction PDC ×5", "Traction +15 kg ×3", "Traction +30 kg ×2", "Tenue haute 2 s à +40 kg ×1"],
+          "exercices": [
+            { "id": "tenue-haute", "nom": "Tenue haute", "type": "leste", "series": 3, "reps": 1, "chargeKg": 47.5, "chargeTexte": "+47,5 kg", "reposMin": 180, "reposMax": 240, "consigne": "Marchepied, menton au-dessus de la barre, coudes bas, tiens 3 s, descends en 3 s" },
+            { "id": "traction-pause-2s", "nom": "Traction lestée, pause 2 s en haut", "type": "leste", "series": 3, "reps": 4, "chargeKg": 32.5, "chargeTexte": "+32,5 kg", "reposMin": 180, "reposMax": 180 },
+            { "id": "traction-chest-to-bar", "nom": "Traction poitrine à la barre (chest-to-bar)", "type": "leste", "series": 3, "reps": 4, "chargeKg": 0, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 120 },
+            { "id": "tirage-bras-tendus", "nom": "Tirage bras tendus à la poulie", "type": "charge", "series": 3, "reps": 12, "chargeKg": null, "chargeTexte": "RPE 8 (noter la charge)", "reposMin": 90, "reposMax": 90 },
+            { "id": "face-pull", "nom": "Face pull", "type": "charge", "series": 2, "reps": 15, "chargeKg": 22.5, "chargeTexte": "22,5 kg", "reposMin": 90, "reposMax": 90 }
+          ]
+        },
+        {
+          "id": "S2-samedi",
+          "date": "2026-10-31",
+          "titre": "Skills",
+          "consigne": "Léger",
+          "echauffement": ["Poignets : bascules 2×10", "Poignets : décollages de paumes 2×10", "Poignets : planche lean sur les doigts 3×10 s"],
+          "exercices": [
+            { "id": "handstand-libre", "nom": "Handstand libre au sol", "type": "tenue", "series": 6, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 45, "reposMax": 60, "consigne": "Tentatives" },
+            { "id": "hspu-parallettes", "nom": "HSPU libre sur parallettes", "type": "reps", "series": 3, "reps": 2, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 180 },
+            { "id": "fl-adv-tuck-hold", "nom": "Front lever advanced tuck hold", "type": "tenue", "series": 3, "dureeMin": 12, "dureeMax": 12, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 90, "reposMax": 90 },
+            { "id": "fl-raises-adv-tuck", "nom": "Front lever raises advanced tuck", "type": "reps", "series": 3, "reps": 4, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 120 },
+            { "id": "curl-poignet", "nom": "Curl poignet", "type": "charge", "series": 2, "reps": 15, "chargeKg": null, "chargeTexte": "Léger", "reposMin": 60, "reposMax": 60 },
+            { "id": "curl-poignet-inverse", "nom": "Curl poignet inversé", "type": "charge", "series": 2, "reps": 15, "chargeKg": null, "chargeTexte": "Léger", "reposMin": 60, "reposMax": 60 },
+            { "id": "hanging-leg-raises", "nom": "Hanging leg raises", "type": "reps", "series": 2, "reps": 10, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 90, "reposMax": 90, "optionnel": true }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S3",
+      "nom": "Semaine 3",
+      "seances": [
+        {
+          "id": "S3-lundi",
+          "date": "2026-11-02",
+          "titre": "Force traction",
+          "echauffement": ["Mobilité épaules 3 min", "Traction PDC ×5", "Traction +15 kg ×3", "Traction +25 kg ×2", "Traction +35 kg ×1", "Traction +42,5 kg ×1"],
+          "exercices": [
+            { "id": "traction-lestee", "role": "top", "nom": "Traction lestée — top single", "type": "leste", "series": 1, "reps": 1, "chargeKg": 47.5, "chargeTexte": "+47,5 kg, RPE 8–9", "reposMin": 300, "reposMax": 300, "consigne": "Noter s'il est rapide ou dur" },
+            { "id": "traction-lestee", "nom": "Traction lestée", "type": "leste", "series": 1, "reps": 2, "chargeKg": 42.5, "chargeTexte": "+42,5 kg", "reposMin": 240, "reposMax": 240 },
+            { "id": "traction-lestee", "role": "backoff", "nom": "Traction lestée — back-off", "type": "leste", "series": 2, "reps": 3, "chargeKg": 37.5, "chargeTexte": "+37,5 kg", "reposMin": 180, "reposMax": 180 },
+            { "id": "curl-barre", "nom": "Curl barre", "type": "charge", "series": 3, "reps": 5, "chargeKg": 35, "chargeTexte": "35 kg", "reposMin": 120, "reposMax": 120 }
+          ]
+        },
+        {
+          "id": "S3-mardi",
+          "date": "2026-11-03",
+          "titre": "Skills",
+          "echauffement": ["Poignets : bascules 2×10", "Poignets : décollages de paumes 2×10", "Poignets : planche lean sur les doigts 3×10 s", "Scapular push-ups 2×10", "Ventre au mur 2×30 s"],
+          "exercices": [
+            { "id": "handstand-libre", "nom": "Handstand libre au sol", "type": "tenue", "series": 10, "dureeMin": 15, "dureeMax": 25, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 45, "reposMax": 60, "consigne": "Tentatives" },
+            { "id": "decollages-mur", "nom": "Décollages du mur", "type": "tenue", "series": 3, "reps": 6, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 60, "reposMax": 60, "consigne": "Ventre au mur, tenue 3 s" },
+            { "id": "hspu-parallettes", "nom": "HSPU libre sur parallettes", "type": "reps", "series": 5, "reps": 2, "derniereSerieMax": true, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 180, "reposMax": 180, "consigne": "4×2 + 1×max" },
+            { "id": "hspu-mur", "nom": "HSPU au mur", "type": "reps", "series": 3, "reps": 5, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 120, "consigne": "Descente 3 s" },
+            { "id": "fl-one-leg", "nom": "Front lever one leg", "type": "tenue", "series": 6, "dureeMin": 3, "dureeMax": 4, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 90, "reposMax": 90, "consigne": "Alterne la jambe" },
+            { "id": "fl-negatives-one-leg", "nom": "Front lever négatives one leg", "type": "reps", "series": 3, "reps": 3, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 120, "consigne": "Descente 4–5 s" }
+          ]
+        },
+        {
+          "id": "S3-mercredi",
+          "date": "2026-11-04",
+          "titre": "Jambes",
+          "echauffement": [],
+          "exercices": [
+            { "id": "leg-extension", "nom": "Leg extension", "type": "charge", "series": 4, "reps": 10, "chargeKg": null, "chargeTexte": "S2 + 2,5 à 5 kg", "reposMin": 90, "reposMax": 90 },
+            { "id": "leg-press", "nom": "Leg press", "type": "charge", "series": 4, "reps": 8, "chargeKg": null, "chargeTexte": "S2 + 5 à 10 kg", "reposMin": 90, "reposMax": 90 },
+            { "id": "mollets-machine", "nom": "Mollets (machine)", "type": "charge", "series": 4, "reps": 15, "chargeKg": null, "chargeTexte": "S2 + 2,5 à 5 kg", "reposMin": 60, "reposMax": 90 },
+            { "id": "course", "nom": "Course à pied", "type": "course", "series": 1, "dureeMin": 1500, "dureeMax": 1500, "chargeKg": null, "chargeTexte": "Modérée à soutenue", "reposMin": null, "reposMax": null }
+          ]
+        },
+        {
+          "id": "S3-jeudi",
+          "date": "2026-11-05",
+          "titre": "Haut de traction",
+          "echauffement": ["Traction PDC ×5", "Traction +15 kg ×3", "Traction +30 kg ×2", "Tenue haute 2 s à +45 kg ×1"],
+          "exercices": [
+            { "id": "tenue-haute", "nom": "Tenue haute", "type": "leste", "series": 3, "reps": 1, "chargeKg": 50, "chargeTexte": "+50 kg", "reposMin": 240, "reposMax": 240, "consigne": "Marchepied, menton au-dessus de la barre, coudes bas, tiens 3 s, descends en 3 s" },
+            { "id": "traction-pause-2s", "nom": "Traction lestée, pause 2 s en haut", "type": "leste", "series": 3, "reps": 4, "chargeKg": 35, "chargeTexte": "+35 kg", "reposMin": 180, "reposMax": 180 },
+            { "id": "traction-chest-to-bar", "nom": "Traction chest-to-bar", "type": "leste", "series": 3, "reps": 4, "chargeKg": 5, "chargeTexte": "+5 kg", "reposMin": 120, "reposMax": 120 },
+            { "id": "tirage-bras-tendus", "nom": "Tirage bras tendus à la poulie", "type": "charge", "series": 3, "reps": 10, "chargeKg": null, "chargeTexte": "S2 + 2,5 kg", "reposMin": 90, "reposMax": 90 },
+            { "id": "face-pull", "nom": "Face pull", "type": "charge", "series": 2, "reps": 15, "chargeKg": 25, "chargeTexte": "25 kg", "reposMin": 90, "reposMax": 90 }
+          ]
+        },
+        {
+          "id": "S3-samedi",
+          "date": "2026-11-07",
+          "titre": "Skills",
+          "consigne": "Léger",
+          "echauffement": ["Poignets : bascules 2×10", "Poignets : décollages de paumes 2×10", "Poignets : planche lean sur les doigts 3×10 s"],
+          "exercices": [
+            { "id": "handstand-libre", "nom": "Handstand libre au sol", "type": "tenue", "series": 6, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 45, "reposMax": 60, "consigne": "Tentatives" },
+            { "id": "hspu-parallettes", "nom": "HSPU libre sur parallettes", "type": "reps", "series": 4, "reps": 2, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 180 },
+            { "id": "fl-adv-tuck-hold", "nom": "Front lever advanced tuck hold", "type": "tenue", "series": 3, "dureeMin": 15, "dureeMax": 15, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 90, "reposMax": 90 },
+            { "id": "fl-raises-adv-tuck", "nom": "Front lever raises advanced tuck", "type": "reps", "series": 3, "reps": 5, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 120 },
+            { "id": "curl-poignet", "nom": "Curl poignet", "type": "charge", "series": 2, "reps": 15, "chargeKg": null, "chargeTexte": "Léger", "reposMin": 60, "reposMax": 60 },
+            { "id": "curl-poignet-inverse", "nom": "Curl poignet inversé", "type": "charge", "series": 2, "reps": 15, "chargeKg": null, "chargeTexte": "Léger", "reposMin": 60, "reposMax": 60 },
+            { "id": "hanging-leg-raises", "nom": "Hanging leg raises", "type": "reps", "series": 2, "reps": 10, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 90, "reposMax": 90, "optionnel": true }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S4",
+      "nom": "Semaine 4 — Deload",
+      "seances": [
+        {
+          "id": "S4-lundi",
+          "date": "2026-11-09",
+          "titre": "Traction",
+          "consigne": "Facile, RPE 6–7",
+          "echauffement": ["Mobilité épaules 3 min", "Traction PDC ×5", "Traction +15 kg ×3", "Traction +25 kg ×2"],
+          "exercices": [
+            { "id": "traction-lestee", "nom": "Traction lestée", "type": "leste", "series": 3, "reps": 2, "chargeKg": 32.5, "chargeTexte": "+32,5 kg", "reposMin": 180, "reposMax": 180 },
+            { "id": "curl-barre", "nom": "Curl barre", "type": "charge", "series": 2, "reps": 6, "chargeKg": 25, "chargeTexte": "25 kg", "reposMin": 120, "reposMax": 120 }
+          ]
+        },
+        {
+          "id": "S4-mardi",
+          "date": "2026-11-10",
+          "titre": "Skills",
+          "consigne": "Léger",
+          "echauffement": ["Poignets : bascules 2×10", "Poignets : décollages de paumes 2×10", "Poignets : planche lean sur les doigts 3×10 s", "Scapular push-ups 2×10", "Ventre au mur 2×30 s"],
+          "exercices": [
+            { "id": "handstand-libre", "nom": "Handstand libre au sol", "type": "tenue", "series": 5, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 60, "reposMax": 60, "consigne": "Tentatives" },
+            { "id": "decollages-mur", "nom": "Décollages du mur", "type": "tenue", "series": 2, "reps": 4, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 60, "reposMax": 60 },
+            { "id": "hspu-parallettes", "nom": "HSPU libre sur parallettes", "type": "reps", "series": 3, "reps": 1, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 120 },
+            { "id": "fl-one-leg", "nom": "Front lever one leg", "type": "tenue", "series": 3, "dureeMin": 2, "dureeMax": 3, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 90, "reposMax": 90 },
+            { "id": "fl-negatives-one-leg", "nom": "Front lever négatives one leg", "type": "reps", "series": 2, "reps": 2, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 120 }
+          ]
+        },
+        {
+          "id": "S4-mercredi",
+          "date": "2026-11-11",
+          "titre": "Jambes",
+          "consigne": "Léger, ~60 % des charges de S3",
+          "echauffement": [],
+          "exercices": [
+            { "id": "leg-extension", "nom": "Leg extension", "type": "charge", "series": 2, "reps": 12, "chargeKg": null, "chargeTexte": "Léger", "reposMin": 90, "reposMax": 90 },
+            { "id": "leg-press", "nom": "Leg press", "type": "charge", "series": 2, "reps": 10, "chargeKg": null, "chargeTexte": "Léger", "reposMin": 90, "reposMax": 90 },
+            { "id": "mollets-machine", "nom": "Mollets (machine)", "type": "charge", "series": 2, "reps": 15, "chargeKg": null, "chargeTexte": "Léger", "reposMin": 60, "reposMax": 90 },
+            { "id": "course", "nom": "Course à pied", "type": "course", "series": 1, "dureeMin": 900, "dureeMax": 900, "chargeKg": null, "chargeTexte": "Facile", "reposMin": null, "reposMax": null }
+          ]
+        },
+        {
+          "id": "S4-jeudi",
+          "date": "2026-11-12",
+          "titre": "Traction",
+          "consigne": "Léger",
+          "echauffement": ["Traction PDC ×5", "Traction +15 kg ×3"],
+          "exercices": [
+            { "id": "traction-pause-2s", "nom": "Traction lestée, pause 2 s en haut", "type": "leste", "series": 2, "reps": 3, "chargeKg": 25, "chargeTexte": "+25 kg", "reposMin": 180, "reposMax": 180 },
+            { "id": "traction-chest-to-bar", "nom": "Traction chest-to-bar", "type": "leste", "series": 2, "reps": 3, "chargeKg": 0, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 120 },
+            { "id": "tirage-bras-tendus", "nom": "Tirage bras tendus à la poulie", "type": "charge", "series": 2, "reps": 12, "chargeKg": null, "chargeTexte": "Léger", "reposMin": 90, "reposMax": 90 },
+            { "id": "face-pull", "nom": "Face pull", "type": "charge", "series": 2, "reps": 15, "chargeKg": 20, "chargeTexte": "20 kg", "reposMin": 90, "reposMax": 90 }
+          ]
+        },
+        {
+          "id": "S4-samedi",
+          "date": "2026-11-14",
+          "titre": "Skills",
+          "consigne": "Très léger",
+          "echauffement": ["Poignets : bascules 2×10", "Poignets : décollages de paumes 2×10", "Poignets : planche lean sur les doigts 3×10 s"],
+          "exercices": [
+            { "id": "handstand-libre", "nom": "Handstand libre au sol", "type": "tenue", "series": 4, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 60, "reposMax": 60, "consigne": "Tentatives" },
+            { "id": "hspu-parallettes", "nom": "HSPU libre sur parallettes", "type": "reps", "series": 2, "reps": 1, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 120 },
+            { "id": "fl-adv-tuck-hold", "nom": "Front lever advanced tuck hold", "type": "tenue", "series": 2, "dureeMin": 10, "dureeMax": 10, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 90, "reposMax": 90 },
+            { "id": "fl-raises-adv-tuck", "nom": "Front lever raises advanced tuck", "type": "reps", "series": 2, "reps": 3, "chargeKg": null, "chargeTexte": "PDC", "reposMin": 120, "reposMax": 120 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TEST",
+      "nom": "Test PR",
+      "seances": [
+        {
+          "id": "TEST-lundi",
+          "date": "2026-11-16",
+          "titre": "Test PR",
+          "consigne": "Bras tendus en bas, sans élan, menton au-dessus de la barre.",
+          "echauffement": ["Mobilité épaules 5 min", "Traction PDC ×5", "Traction +15 kg ×3", "Traction +30 kg ×2", "Traction +40 kg ×1", "Traction +45 kg ×1"],
+          "exercices": [
+            { "id": "traction-lestee", "role": "single", "nom": "Traction lestée — échauffement", "type": "leste", "series": 1, "reps": 1, "chargeKg": 47.5, "chargeTexte": "+47,5 kg", "reposMin": 300, "reposMax": 300, "consigne": "Seulement si ouverture à +52,5", "optionnel": true },
+            { "id": "traction-lestee", "role": "single", "nom": "Traction lestée — tentative 1", "type": "leste", "series": 1, "reps": 1, "chargeKg": 52.5, "chargeTexte": "+52,5 kg (ou +50)", "reposMin": 300, "reposMax": 300 },
+            { "id": "traction-lestee", "role": "single", "nom": "Traction lestée — tentative 2", "type": "leste", "series": 1, "reps": 1, "chargeKg": 55, "chargeTexte": "+55 kg (ou +52,5)", "reposMin": null, "reposMax": null, "consigne": "Seulement si la 1 est passée vite", "optionnel": true }
+          ]
+        }
+      ]
+    }
+  ]
+}
